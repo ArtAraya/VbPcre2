@@ -74,6 +74,9 @@ Private Sub Class_Initialize()
    Me.CheckUtfValidity = True
    Me.CaseSensitive = True
    Me.Greedy = True
+   
+    ' === NEW: Full Unicode support enabled by default ===
+   Me.UnicodeProperties = True
 End Sub
 
 Friend Function OptionFlags() As Long
@@ -267,6 +270,30 @@ Public Property Let DollarMatchesEndOfStringOnly(ByVal p_Enabled As Boolean)
    AddOrRemoveRegexOptionFlag PCRE2_DOLLAR_ENDONLY, p_Enabled
 End Property
 
+' In multiline mode (when PCRE2_MULTILINE is set), the circumflex metacharacter matches at the start of the subject
+' (unless PCRE2_NOTBOL is set), and also after any internal newline.
+' However, it does not match after a newline at the end of the subject, for compatibility with Perl.
+' If you want a multiline circumflex also to match after a terminating newline, you must set PCRE2_ALT_CIRCUMFLEX.
+Public Property Get AlternateCircumflexHandling() As Boolean
+   AlternateCircumflexHandling = m_Options And PCRE2_ALT_CIRCUMFLEX
+End Property
+
+Public Property Let AlternateCircumflexHandling(ByVal p_Enabled As Boolean)
+   AddOrRemoveRegexOptionFlag PCRE2_ALT_CIRCUMFLEX, p_Enabled
+End Property
+
+' ================================================================
+' Unicode Character Properties (UCP) support
+' ================================================================
+' When True, \w, \b, \d, \s, and \p{...} use full Unicode definitions
+' instead of ASCII-only behaviour.
+Public Property Get UnicodeProperties() As Boolean
+    UnicodeProperties = CBool(m_Options And PCRE2_UCP)
+End Property
+
+Public Property Let UnicodeProperties(ByVal p_Enabled As Boolean)
+    AddOrRemoveRegexOptionFlag PCRE2_UCP, p_Enabled
+End Property
 
 ' This option causes PCRE2 to regard both the pattern and the subject strings that are subsequently processed as strings of UTF characters instead of single-code-unit strings.
 ' It is available when PCRE2 is built to include Unicode support (which is the default).
@@ -278,19 +305,6 @@ End Property
 
 Public Property Let Utf(ByVal p_Enabled As Boolean)
    AddOrRemoveRegexOptionFlag PCRE2_UTF, p_Enabled
-End Property
-
-
-' In multiline mode (when PCRE2_MULTILINE is set), the circumflex metacharacter matches at the start of the subject
-' (unless PCRE2_NOTBOL is set), and also after any internal newline.
-' However, it does not match after a newline at the end of the subject, for compatibility with Perl.
-' If you want a multiline circumflex also to match after a terminating newline, you must set PCRE2_ALT_CIRCUMFLEX.
-Public Property Get AlternateCircumflexHandling() As Boolean
-   AlternateCircumflexHandling = m_Options And PCRE2_ALT_CIRCUMFLEX
-End Property
-
-Public Property Let AlternateCircumflexHandling(ByVal p_Enabled As Boolean)
-   AddOrRemoveRegexOptionFlag PCRE2_ALT_CIRCUMFLEX, p_Enabled
 End Property
    
 
